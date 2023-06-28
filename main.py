@@ -1,31 +1,26 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import http.server
+import socketserver
 import http.client
-import urllib.parse
+import base64
+import ssl
 
-class ProxyHandler(BaseHTTPRequestHandler):
+PORT = 9999
+
+
+class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        self.proxy_request("GET")
+        camouflaged_url = "/" + base64.urlsafe_b64encode(self.path.encode()).decode()
 
-    def proxy_request(self, method):
-  
-        parsed_url = urllib.parse.urlparse(self.path)
-
-        conn = http.client.HTTPSConnection(parsed_url.netloc)
-        conn.request(method, parsed_url.path, headers=self.headers)
-
+        conn = http.client.HTTPConnection('localhost', 9998)
+        conn.request("GET", camouflaged_url)
         response = conn.getresponse()
 
-        self.send_response(response.status, response.reason)
-        for header, value in response.getheaders():
-            self.send_header(header, value)
+        self.send_response(response.status)
+        self.send_header("Content-type", response.getheader("Content-type"))
         self.end_headers()
+        self.wfile.write(response.read())
 
-        body = response.read()
-        self.wfile.write(body)
 
-def run_proxy():
-    server_address = ('127.0.0.1', 8080)
-    httpd = HTTPServer(server_address, ProxyHandler)
+with socketserver.TCPServer(("", PORT), ProxyHandler) as httpd:
+    print("serving at port", PORT)
     httpd.serve_forever()
-
-run_proxy()
