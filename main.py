@@ -11,7 +11,7 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         camouflaged_url = "/" + base64.urlsafe_b64encode(self.path.encode()).decode()
 
-        conn = http.client.HTTPConnection('localhost', 9998)
+        conn = http.client.HTTPConnection('51.103.110.178', 443)
         conn.request("GET", camouflaged_url)
         response = conn.getresponse()
 
