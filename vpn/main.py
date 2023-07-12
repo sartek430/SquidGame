@@ -3,6 +3,7 @@ import binascii
 import http.server
 import socketserver
 import requests
+import ssl
 
 PORT = 9998
 
@@ -35,7 +36,6 @@ class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Bad Request: Invalid base64 encoding\n")
 
-
-with socketserver.TCPServer(("", PORT), DecamouflageHandler) as httpd:
-    print("serving at port", PORT)
-    httpd.serve_forever()
+httpd = socketserver.TCPServer(("", PORT), DecamouflageHandler)
+httpd.socket = ssl.wrap_socket(httpd.socket, certfile="cert.pem", keyfile="key.pem", server_side=True)
+httpd.serve_forever()
