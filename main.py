@@ -43,7 +43,6 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
 
         self.close_connection = False
 
-        # Transférer les données entre le client et le serveur distant
         self.connection = conn
         self.handle_one_request()
 

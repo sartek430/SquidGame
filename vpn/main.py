@@ -7,7 +7,7 @@ import ssl
 
 PORT = 9998
 
-VPN_API_KEY="xtaszcvbjklsqnqkxjazvfuagioazdncbjuqfieuzhfuoizaeuvifciupzr"
+VPN_API_KEY = "xtaszcvbjklsqnqkxjazvfuagioazdncbjuqfieuzhfuoizaeuvifciupzr"
 
 class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -38,4 +38,5 @@ class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
 
 httpd = socketserver.TCPServer(("", PORT), DecamouflageHandler)
 httpd.socket = ssl.wrap_socket(httpd.socket, certfile="cert.pem", keyfile="key.pem", server_side=True)
+print("serving at port", PORT)
 httpd.serve_forever()
