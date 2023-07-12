@@ -6,9 +6,17 @@ import requests
 
 PORT = 9998
 
+VPN_API_KEY="xtaszcvbjklsqnqkxjazvfuagioazdncbjuqfieuzhfuoizaeuvifciupzr"
 
 class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        receviedApiKey = self.headers.get('Api-Key')
+        if receviedApiKey != VPN_API_KEY:
+            self.send_response(403)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Forbidden\n")
+            return
         try:
             decamouflaged_url = base64.urlsafe_b64decode(self.path[1:]).decode()
 
