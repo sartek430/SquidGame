@@ -9,7 +9,7 @@ PORT = 9998
 
 VPN_API_KEY = "xtaszcvbjklsqnqkxjazvfuagioazdncbjuqfieuzhfuoizaeuvifciupzr"
 
-class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
+class VpnHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         receviedApiKey = self.headers.get('Api-Key')
         if receviedApiKey != VPN_API_KEY:
@@ -19,10 +19,8 @@ class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b"Forbidden\n")
             return
         try:
-            decamouflaged_url = base64.urlsafe_b64decode(self.path[1:]).decode()
-
-            print(f"URL décamouflée : {decamouflaged_url}")
-            response = requests.get(decamouflaged_url)
+            rightUrl = base64.urlsafe_b64decode(self.path[1:]).decode()
+            response = requests.get(rightUrl)
 
             self.send_response(200)
             self.send_header("Content-type", "text/html")
@@ -36,7 +34,7 @@ class DecamouflageHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Bad Request: Invalid base64 encoding\n")
 
-httpd = socketserver.TCPServer(("", PORT), DecamouflageHandler)
+httpd = socketserver.TCPServer(("", PORT), VpnHandler)
 httpd.socket = ssl.wrap_socket(httpd.socket, certfile="cert.pem", keyfile="key.pem", server_side=True)
 print("serving at port", PORT)
 httpd.serve_forever()

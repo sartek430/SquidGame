@@ -16,11 +16,11 @@ LOCAL_VPN_PORT = 9998
 
 class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        camouflaged_url = "/" + base64.urlsafe_b64encode(self.path.encode()).decode()
+        right_url = "/" + base64.urlsafe_b64encode(self.path.encode()).decode()
 
-        conn = http.client.HTTPSConnection(LOCAL_VPN, LOCAL_VPN_PORT, context=ssl._create_unverified_context())
-        conn.request("GET", camouflaged_url, headers={"Api-Key": VPN_API_KEY})
-        response = conn.getresponse()
+        connection = http.client.HTTPSConnection(LOCAL_VPN, LOCAL_VPN_PORT, context=ssl._create_unverified_context())
+        connection.request("GET", right_url, headers={"Api-Key": VPN_API_KEY})
+        response = connection.getresponse()
 
         self.send_response(response.status)
         self.send_header("Content-type", response.getheader("Content-type"))
@@ -32,7 +32,7 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
         port = int(port)
 
         try:
-            conn = http.client.HTTPSConnection(host, port, context=ssl._create_unverified_context())
+            connection = http.client.HTTPSConnection(host, port, context=ssl._create_unverified_context())
             self.send_response(200, 'Connection established')
             self.send_header('Proxy-Agent', 'Python-Proxy')
             self.end_headers()
@@ -43,7 +43,7 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
 
         self.close_connection = False
 
-        self.connection = conn
+        self.connection = connection
         self.handle_one_request()
 
 httpd = socketserver.TCPServer(("", PORT), ProxyHandler)
